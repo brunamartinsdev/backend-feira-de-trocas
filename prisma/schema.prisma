@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model cadastro {
+  id              String     @id @default(uuid())
+  nome            String     @db.VarChar(30)
+  email           String     @unique @db.VarChar(30)
+  propostasFeitas proposta[]
+}
+
+model itenscad {
+  id        String  @id @default(uuid())
+  nome      String  @db.VarChar(30)
+  descricao String?
+  categoria String  @db.VarChar(30)
+  status    String  @default("Disponível")
+
+  propostasOfertadas proposta[] @relation("ItemOfertado")
+  propostasDesejadas proposta[] @relation("ItemDesejado")
+}
+
+model proposta {
+  id             String   @id @default(uuid())
+  itemOfertado   itenscad @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
+  itemOfertadoId String
+
+  itemDesejado   itenscad @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
+  itemDesejadoId String
+
+  quemFez   cadastro @relation(fields: [quemFezId], references: [id])
+  quemFezId String
+
+  status String @default("pendente")
+}
