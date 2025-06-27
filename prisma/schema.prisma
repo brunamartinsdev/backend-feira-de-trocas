@@ -3,38 +3,47 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" 
   url      = env("DATABASE_URL")
 }
 
-model cadastro {
-  id              String     @id @default(uuid())
-  nome            String     @db.VarChar(30)
-  email           String     @unique @db.VarChar(30)
-  propostasFeitas proposta[]
+model Usuario {
+  id               String     @id @default(uuid())
+  nome             String     @db.VarChar(30)
+  email            String     @unique @db.VarChar(30)
+  senha            String?    
+  propostasFeitas  Proposta[]
+  itensCadastrados Item[]
 }
 
-model itenscad {
-  id        String  @id @default(uuid())
-  nome      String  @db.VarChar(30)
-  descricao String?
-  categoria String  @db.VarChar(30)
-  status    String  @default("Disponível")
+model Item {
+  id                   String     @id @default(uuid())
+  nome                 String     @db.VarChar(30)
+  descricao            String?
+  categoria            String     @db.VarChar(30)
+  status               String     @default("Disponível")
+  foto                 String?   
 
-  propostasOfertadas proposta[] @relation("ItemOfertado")
-  propostasDesejadas proposta[] @relation("ItemDesejado")
+  usuarioResponsavelId String // Foreign Key para o Usuário responsável pelo item
+  usuarioResponsavel   Usuario    @relation(fields: [usuarioResponsavelId], references: [id])
+
+  propostasOfertadas  Proposta[] @relation("ItemOfertado") // Relacionamento com propostas onde este item é ofertado
+  propostasDesejadas  Proposta[] @relation("ItemDesejado") // Relacionamento com propostas onde este item é desejado
 }
 
-model proposta {
-  id             String   @id @default(uuid())
-  itemOfertado   itenscad @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
-  itemOfertadoId String
+model Proposta {
+  id               String   @id @default(uuid())
+  status           String   @default("pendente") // Atributo Status da Proposta
 
-  itemDesejado   itenscad @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
-  itemDesejadoId String
+  // Relacionamento com o Item que está sendo OFERTADO
+  itemOfertado     Item     @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
+  itemOfertadoId   String // Foreign Key para o Item Ofertado
 
-  quemFez   cadastro @relation(fields: [quemFezId], references: [id])
-  quemFezId String
+  // Relacionamento com o Item que está sendo DESEJADO
+  itemDesejado     Item     @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
+  itemDesejadoId   String // Foreign Key para o Item Desejado
 
-  status String @default("pendente")
+  // Relacionamento com o Usuário que FEZ a proposta
+  quemFez          Usuario  @relation(fields: [quemFezId], references: [id])
+  quemFezId        String // Foreign Key para o Usuário que fez a proposta
 }
