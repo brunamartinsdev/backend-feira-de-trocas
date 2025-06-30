@@ -62,5 +62,15 @@ API backend para a "Feira de Trocas Comunitária", um projeto prático do Bootca
 | PUT    | `/itens/:id`     | Atualiza um item existente                |
 | DELETE | `/itens/:id`     | Exclui um item                            |
 
+- **Propostas (`/propostas`):**
+
+| Método | Rota                  | Descrição                                         |
+|--------|-----------------------|---------------------------------------------------|
+| POST   | `/propostas`          | Cria uma nova proposta de troca                      |
+| GET    | `/propostas`          | Lista todas as propostas (com filtros por status, proponente, item desejado) |
+| GET    | `/propostas/:id`      | Detalhes de uma proposta específica               |
+| PUT    | `/propostas/:id/aceitar` | Aceita uma proposta de troca                         |
+| PUT    | `/propostas/:id/recusar` | Recusa uma proposta de troca                
+
 ## 6. Contribuições da Equipe
 
