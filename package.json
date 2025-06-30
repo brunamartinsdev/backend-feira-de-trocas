@@ -13,6 +13,7 @@
   "description": "API backend para a \"Feira de Trocas Comunitária\", um projeto prático do Bootcamp FullStack da Avanti. O sistema visa facilitar a troca de itens entre usuários, promovendo consumo consciente e laços comunitários.",
   "dependencies": {
     "@prisma/client": "^6.10.1",
+    "bcryptjs": "^3.0.2",
     "esm": "^3.2.25",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2"

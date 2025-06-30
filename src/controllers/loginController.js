@@ -1,9 +1,7 @@
 import jwt from "jsonwebtoken"; //npm i jsonwebtoken
 import prisma from "../models/prismaClient.js";
 
-const SECRET_KEY = "admin123"; // adicionar o bcrypt depois
-
-//Rota para realizar a atenticação e gerar token
+//Rota para realizar a autenticação e gerar token
 const login = async (req, res) => {
   const { email, senha } = req.body;
   try {
@@ -15,7 +13,11 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Email ou senha inválidos" });
     }
 
-    
+    const userValid = bcrypt.compareSync(senha,user.senha);
+    if (!userValid) {
+      return response.status(401).json({"error": "Unauthorized"})
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
