@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"; //npm i jsonwebtoken
 import prisma from "../models/prismaClient.js";
 
 const SECRET_KEY = "admin123"; // adicionar o bcrypt depois
