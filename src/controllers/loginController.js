@@ -47,10 +47,9 @@ const authenticateToken=(req,res,next) =>{
     next();
   })
 }
-export { authenticateToken };
 
 const loginControllers = {
-  login,
+  login, authenticateToken,
 };
 
 export default loginControllers;

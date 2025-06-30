@@ -1,6 +1,10 @@
-import { authenticateToken } from '../controllers/loginController.js';
+import express from 'express';
+import loginControllers from '../controllers/loginController.js';
 
-   //Rota autenticada (exemplo funcional)
-app.get('/protected', authenticateToken, (req,res)=>{
-  res.status(200).json({message:'Bem-vindo à rota autenticada!'});
-})
+const router = express.Router();
+
+router.get('/protected', loginControllers.authenticateToken, (req, res) => {
+  res.status(200).json({ message: 'Bem-vindo à rota autenticada!' });
+});
+
+export default router;
