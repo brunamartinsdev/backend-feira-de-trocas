@@ -3,6 +3,7 @@ import prisma from "../models/prismaClient.js";
 
 const SECRET_KEY = "admin123"; // adicionar o bcrypt depois
 
+//Rota para realizar a atenticação e gerar token
 const login = async (req, res) => {
   const { email, senha } = req.body;
   try {
@@ -14,6 +15,7 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Email ou senha inválidos" });
     }
 
+    
     const token = jwt.sign(
       {
         id: user.id,
@@ -30,7 +32,22 @@ const login = async (req, res) => {
     console.error("Erro no login:", error);
     return res.status(500).json({ message: "Erro interno no servidor" });
   }
+
 };
+
+//Middleware para auntenticar o token
+const authenticateToken=(req,res,next) =>{
+  const token= req.headers['authorization'];
+
+  if(!token) return res.status(403).json({message:'Token não fornecido!'});
+
+  jwt.verify(token, SECRET_KEY, (err,user)=>{
+    if (err) return res.status(403).json({message:'Token inválido!'});
+    req.user= user;
+    next();
+  })
+}
+export { authenticateToken };
 
 const loginControllers = {
   login,
