@@ -11,7 +11,8 @@ model Usuario {
   id               String     @id @default(uuid())
   nome             String     @db.VarChar(30)
   email            String     @unique @db.VarChar(30)
-  senha            String?    
+  senha            String?
+  isAdmin          Boolean    @default(false)
   propostasFeitas  Proposta[]
   itensCadastrados Item[]
 }

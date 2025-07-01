@@ -1,7 +1,7 @@
 {
   "name": "backend_ideia",
   "version": "1.0.0",
-  "main": "src/serve.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,14 +10,25 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "API backend para a \"Feira de Trocas Comunitária\", um projeto prático do Bootcamp FullStack da Avanti. O sistema visa facilitar a troca de itens entre usuários, promovendo consumo consciente e laços comunitários.",
   "dependencies": {
     "@prisma/client": "^6.10.1",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.0.0",
     "esm": "^3.2.25",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
     "prisma": "^6.10.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/souzagabs/back_time7.git"
+  },
+  "bugs": {
+    "url": "https://github.com/souzagabs/back_time7/issues"
+  },
+  "homepage": "https://github.com/souzagabs/back_time7#readme"
 }

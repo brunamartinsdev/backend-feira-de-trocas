@@ -1,4 +1,5 @@
 import prisma from "../models/prismaClient.js";
+import bcrypt from 'bcryptjs';
 
 const getUsuarios = async (request, response) => {
     try {
@@ -29,13 +30,16 @@ const getUsuarioById = async (request, response) => {
 };
 
 const createUsuario = async (request, response) => {
-    const { nome, email, senha } = request.body;
+    const { nome, email, senha, isAdmin } = request.body;
+    const passHash = bcrypt.hashSync(senha,10);
+
+    
     try {
         const usuario = await prisma.usuario.create({
             data: {
                 nome,
                 email,
-                senha
+                senha: passHash, isAdmin
             }
         });
         return response.status(201).json(usuario);
@@ -52,7 +56,9 @@ const createUsuario = async (request, response) => {
 
 const updateUsuario = async (request, response) => {
     const { id } = request.params;
-    const { nome, email, senha } = request.body;
+    const { nome, email, senha, isAdmin } = request.body;
+    const passHash = bcrypt.hashSync(senha,10);
+
     try {
         const userExists = await prisma.usuario.findUnique({
             where: { id }
@@ -64,7 +70,7 @@ const updateUsuario = async (request, response) => {
 
         const usuarioAtualizado = await prisma.usuario.update({
             where: { id },
-            data: { nome, email, senha }
+            data: { nome, email, senha:passHash, isAdmin }
         });
 
         return response.status(200).json(usuarioAtualizado);
