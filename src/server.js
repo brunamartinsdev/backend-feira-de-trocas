@@ -1,3 +1,4 @@
+//start no servidor: node src/server.js
 import express from "express";
 import loginRoutes from "./routes/loginRoutes.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js"; 

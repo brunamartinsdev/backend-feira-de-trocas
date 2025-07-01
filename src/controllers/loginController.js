@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";//npm i jsonwebtoken
 import prisma from "../models/prismaClient.js";
 import bcrypt from 'bcryptjs';
-import env from "dotenv";
+import env from "dotenv";//npm install dotenv
 env.config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
