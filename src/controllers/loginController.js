@@ -18,6 +18,7 @@ const login = async (req, res) => {
         nome: true,
         email: true,
         senha: true,
+        isAdmin: true,
       },
     });
 
@@ -33,7 +34,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
-        nome: user.nome,
+        nome: user.nome,isAdmin:user.isAdmin,
       },
       SECRET_KEY,
       {

@@ -3,12 +3,14 @@ import loginRoutes from "./routes/loginRoutes.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js"; 
 import itemRoutes from "./routes/itemRoutes.js";
 import protectedRoutes from './routes/protectedRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 const app = express();
 app.use(express.json());
 
 app.use('/login', loginRoutes);
 app.use('/', protectedRoutes);
+app.use('/', adminRoutes);
 
 app.use('/usuarios', usuarioRoutes);
 app.use('/itens', itemRoutes);
