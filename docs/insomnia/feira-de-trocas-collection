@@ -1,0 +1,629 @@
+type: collection.insomnia.rest/5.0
+name: Avanti
+meta:
+  id: wrk_8b8e02e72c8446f0a34505b68d733e5b
+  created: 1751322159365
+  modified: 1751322159365
+  description: ""
+collection:
+  - name: ProjetoAvanti
+    meta:
+      id: fld_a312fe009ded4a08abb3fba68594a1ae
+      created: 1751157794755
+      modified: 1751157794755
+      sortKey: -1751157794755
+      description: ""
+    children:
+      - name: Usuario
+        meta:
+          id: fld_fe2a0b7057f549cc85c0ca31c0552467
+          created: 1751157808095
+          modified: 1751157808095
+          sortKey: -1751157808095
+          description: ""
+        children:
+          - url: http://localhost:8084/usuarios
+            name: Get Usuarios
+            meta:
+              id: req_483ff8970bc5496da23b70f837efbde6
+              created: 1751157858133
+              modified: 1751590605761
+              isPrivate: false
+              description: ""
+              sortKey: -1751159111870
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: none
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/usuarios
+            name: Post Usuario
+            meta:
+              id: req_1f043e2bc1674278a7b0633432db57f5
+              created: 1751158002290
+              modified: 1751631052314
+              isPrivate: false
+              description: ""
+              sortKey: -1751159111920
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "nome": "Clara Bonan",
+                    "email": "clara.bonan@example.com",
+                    "senha": "senha123"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.2.0
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/usuarios/2d47eee6-e48d-45de-a1df-b5be775156dc
+            name: Get Usuario By Id
+            meta:
+              id: req_8dd85228f04c4667bbe81853bc52f94b
+              created: 1751159111720
+              modified: 1751631892640
+              isPrivate: false
+              description: ""
+              sortKey: -1751159111720
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/usuarios/9732098f-822c-4741-bb8e-7f45db1ea25e
+            name: Put Usuario
+            meta:
+              id: req_0f0cea0fb33d4a5db16e2139d49358d0
+              created: 1751159352040
+              modified: 1751668506709
+              isPrivate: false
+              description: ""
+              sortKey: -1751159111620
+            method: PUT
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "nome": "Clara Bonan Vianna",
+                    "email": "clara.bonan.vianna@example.com",
+                    "senha": "senha123"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk3MzIwOThmLTgyMmMtNDc0MS1iYjhlLTdmNDVkYjFlYTI1ZSIsIm5vbWUiOiJDbGFyYSBCb25hbiIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2NjgyMjUsImV4cCI6MTc1MTY3MTgyNX0.mjV0FFOZugTrChA_zwCQgRLI2PELU9MLF9_iyZEjWeM
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/usuarios/2d47eee6-e48d-45de-a1df-b5be775156dc
+            name: Delete Usuario
+            meta:
+              id: req_57f2848aca9648098e3f255ae8d59358
+              created: 1751159496783
+              modified: 1751668681424
+              isPrivate: false
+              description: ""
+              sortKey: -1751159111520
+            method: DELETE
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              prefix: "Bearer "
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJkNDdlZWU2LWU0OGQtNDVkZS1hMWRmLWI1YmU3NzUxNTZkYyIsIm5vbWUiOiJKdWxpYSBTb3V6YSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2Njg1NjMsImV4cCI6MTc1MTY3MjE2M30.QagUkRE55P2DqEtqa63lHi0A13ZlD-QNI8Yih3i_M_M
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+        scripts:
+          afterResponse: ""
+          preRequest: ""
+      - name: Item
+        meta:
+          id: fld_600882d09eee4d8d84c6e64ff1312456
+          created: 1751157819646
+          modified: 1751157819646
+          sortKey: -1751157819646
+          description: ""
+        children:
+          - url: http://localhost:8084/itens
+            name: Post Item
+            meta:
+              id: req_ce66af9ce31e4470910024c590ca4694
+              created: 1751236815040
+              modified: 1751633364851
+              isPrivate: false
+              description: ""
+              sortKey: -1751236815040
+            method: POST
+            body:
+              mimeType: application/json
+              text: >-
+                {
+                    "nome": "Notebook Usado",
+                    "descricao": "Noebook usado por 1 ano, com marcas de uso.",
+                    "categoria": "tecnologia",
+                    "foto": "https://res.cloudinary.com/dwfdk5kaa/image/upload/v1751633344/feira-de-trocas-itens/vyiaiflmvezi7xpranbp.avif"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              prefix: "Bearer "
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJkNDdlZWU2LWU0OGQtNDVkZS1hMWRmLWI1YmU3NzUxNTZkYyIsIm5vbWUiOiJKdWxpYSBTb3V6YSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2MzI5NjcsImV4cCI6MTc1MTYzNjU2N30.7DFjWqRg2993EREsNn-uX_ayNrC-I4eT8YpX2enj5Fk
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/itens
+            name: Get Itens
+            meta:
+              id: req_67c7c2ec4cd84f4e8f275a0083fe27f4
+              created: 1751236974699
+              modified: 1751249396097
+              isPrivate: false
+              description: ""
+              sortKey: -1751236814990
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/itens/c5ca580f-2707-4bf8-94fa-00b77430fbd0
+            name: Get Item By Id
+            meta:
+              id: req_4465e809d4f749b89f45d2e5facd4c90
+              created: 1751237038599
+              modified: 1751631870410
+              isPrivate: false
+              description: ""
+              sortKey: -1751236814890
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/itens/c5ca580f-2707-4bf8-94fa-00b77430fbd0
+            name: Put Item
+            meta:
+              id: req_1693024bb56f43fa989068526a4cabfd
+              created: 1751237085952
+              modified: 1751632325355
+              isPrivate: false
+              description: ""
+              sortKey: -1751236814790
+            method: PUT
+            body:
+              mimeType: application/json
+              text: >-
+                
+
+                {
+                    "nome": "Camera Seminova",
+                    "descricao": "Camera usada por 6 meses",
+                    "categoria": "tecnologia",
+                   "status": "Disponível",
+                    "foto": "https://res.cloudinary.com/dwfdk5kaa/image/upload/v1751631446/feira-de-trocas-itens/xn1m363o24drfhemzhp3.jpg"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyN2RiMWYwLTM2NjMtNDAwYy04MWRkLWJiZjQ4ZmY5ZTE3NCIsIm5vbWUiOiJCcnVuYSBNYXJ0aW5zIiwiaXNBZG1pbiI6ZmFsc2UsImlhdCI6MTc1MTYzMjMxMiwiZXhwIjoxNzUxNjM1OTEyfQ.-s1CG47aUSEgoiruVrlZpGwC0RGr79QjQdcVcclkq0E
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/itens/7eb68040-d6d8-410c-8e3c-32d9aea5d701
+            name: Delete Item
+            meta:
+              id: req_1186d6a4e7a644beaf07caa2822528d1
+              created: 1751237412874
+              modified: 1751668882756
+              isPrivate: false
+              description: ""
+              sortKey: -1751236814690
+            method: DELETE
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJkNDdlZWU2LWU0OGQtNDVkZS1hMWRmLWI1YmU3NzUxNTZkYyIsIm5vbWUiOiJKdWxpYSBTb3V6YSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2Njg1NjMsImV4cCI6MTc1MTY3MjE2M30.QagUkRE55P2DqEtqa63lHi0A13ZlD-QNI8Yih3i_M_M
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+        scripts:
+          afterResponse: ""
+          preRequest: ""
+      - name: Proposta
+        meta:
+          id: fld_8011633c33df44d5b5e3afd92ec1ffaa
+          created: 1751157846620
+          modified: 1751157846620
+          sortKey: -1751157846620
+          description: ""
+        children:
+          - url: http://localhost:8084/propostas
+            name: Post Proposta
+            meta:
+              id: req_8d92a84f5ed34f559c9d576a208689f1
+              created: 1751240859280
+              modified: 1751668294353
+              isPrivate: false
+              description: ""
+              sortKey: -1751240859280
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "itemOfertadoId": "ce884e54-1814-45d6-b536-6170db200134",   
+                    "itemDesejadoId": "7eb68040-d6d8-410c-8e3c-32d9aea5d701" 
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              prefix: "Bearer "
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk3MzIwOThmLTgyMmMtNDc0MS1iYjhlLTdmNDVkYjFlYTI1ZSIsIm5vbWUiOiJDbGFyYSBCb25hbiIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2NjgyMjUsImV4cCI6MTc1MTY3MTgyNX0.mjV0FFOZugTrChA_zwCQgRLI2PELU9MLF9_iyZEjWeM
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/propostas
+            name: Get Propostas
+            meta:
+              id: req_63cf9b18e86b4016a44ba8336d9db590
+              created: 1751247980003
+              modified: 1751669416611
+              isPrivate: false
+              description: ""
+              sortKey: -1751240859180
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJkNDdlZWU2LWU0OGQtNDVkZS1hMWRmLWI1YmU3NzUxNTZkYyIsIm5vbWUiOiJKdWxpYSBTb3V6YSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2Njg1NjMsImV4cCI6MTc1MTY3MjE2M30.QagUkRE55P2DqEtqa63lHi0A13ZlD-QNI8Yih3i_M_M
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/propostas/9fdde3cf-a1ab-47b4-8dd5-23e69b1d9c29
+            name: Get Proposta By Id
+            meta:
+              id: req_01ae450121254adf9dbb07dcd4382ed2
+              created: 1751248021176
+              modified: 1751637568379
+              isPrivate: false
+              description: ""
+              sortKey: -1751240859080
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyN2RiMWYwLTM2NjMtNDAwYy04MWRkLWJiZjQ4ZmY5ZTE3NCIsIm5vbWUiOiJCcnVuYSBNYXJ0aW5zIiwiaXNBZG1pbiI6ZmFsc2UsImlhdCI6MTc1MTYzNzUyMywiZXhwIjoxNzUxNjQxMTIzfQ.-wd099Hp7dCIkuZ03hUrF43F5YgUqT2W5KVRMI9keIw
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/propostas/ba85bfad-8409-474d-ba6e-c2dfa540d7dd/aceitar
+            name: Put Aceitar Proposta
+            meta:
+              id: req_67945ade23604257a926a3c2501cb9fd
+              created: 1751248358217
+              modified: 1751668132140
+              isPrivate: false
+              description: ""
+              sortKey: -1751240858980
+            method: PUT
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyN2RiMWYwLTM2NjMtNDAwYy04MWRkLWJiZjQ4ZmY5ZTE3NCIsIm5vbWUiOiJCcnVuYSBNYXJ0aW5zIiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzUxNjY2OTY3LCJleHAiOjE3NTE2NzA1Njd9.AgY2AAZH_pmRSbegN56UsLPmf0syOoa1A-clnQu0y94
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/propostas/680f8886-8b6b-4002-9986-a45ef7400c3a/recusar
+            name: Put Recusar Proposta
+            meta:
+              id: req_b74213fd8327402096588964ee2cd1ed
+              created: 1751248609100
+              modified: 1751668389063
+              isPrivate: false
+              description: ""
+              sortKey: -1751240858880
+            method: PUT
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk3MzIwOThmLTgyMmMtNDc0MS1iYjhlLTdmNDVkYjFlYTI1ZSIsIm5vbWUiOiJDbGFyYSBCb25hbiIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2NjgyMjUsImV4cCI6MTc1MTY3MTgyNX0.mjV0FFOZugTrChA_zwCQgRLI2PELU9MLF9_iyZEjWeM
+              prefix: "Bearer "
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8084/propostas/680f8886-8b6b-4002-9986-a45ef7400c3a
+            name: Delete Proposta
+            meta:
+              id: req_b13eacc0e7474b04aaf2a220e5f55e43
+              created: 1751669311286
+              modified: 1751669448682
+              isPrivate: false
+              description: ""
+              sortKey: -1751669311286
+            method: DELETE
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              prefix: "Bearer "
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJkNDdlZWU2LWU0OGQtNDVkZS1hMWRmLWI1YmU3NzUxNTZkYyIsIm5vbWUiOiJKdWxpYSBTb3V6YSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2Njg1NjMsImV4cCI6MTc1MTY3MjE2M30.QagUkRE55P2DqEtqa63lHi0A13ZlD-QNI8Yih3i_M_M
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+        scripts:
+          afterResponse: ""
+          preRequest: ""
+      - name: Upload
+        meta:
+          id: fld_8a1e74514ad44cc8a45dd53aa871e2ed
+          created: 1751410006514
+          modified: 1751410006514
+          sortKey: -1751410006514
+          description: ""
+        children:
+          - url: http://localhost:8084/uploads/upload
+            name: Post Upload
+            meta:
+              id: req_5470b7cd724c42b69705707c0aab878e
+              created: 1751413083980
+              modified: 1751633011356
+              isPrivate: false
+              description: ""
+              sortKey: -1751413083980
+            method: POST
+            body:
+              mimeType: multipart/form-data
+              params:
+                - id: pair_7016b693ee5c44a29da950857fe5a57c
+                  name: imagem
+                  value: imagem
+                  description: ""
+                  disabled: false
+                  type: file
+                  fileName: C:\Users\Bruna Martins Combat\Desktop\notebook.avif
+            headers:
+              - name: Content-Type
+                value: multipart/form-data
+              - name: User-Agent
+                value: insomnia/11.2.0
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJkNDdlZWU2LWU0OGQtNDVkZS1hMWRmLWI1YmU3NzUxNTZkYyIsIm5vbWUiOiJKdWxpYSBTb3V6YSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3NTE2MzI5NjcsImV4cCI6MTc1MTYzNjU2N30.7DFjWqRg2993EREsNn-uX_ayNrC-I4eT8YpX2enj5Fk
+              prefix: "Bearer "
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Autenticação
+        meta:
+          id: fld_849ccc24ebcd4e9fb105719baa80a5ef
+          created: 1751586558058
+          modified: 1751586562377
+          sortKey: -1751410006614
+          description: ""
+        children:
+          - url: http://localhost:8084/login
+            name: Post Login
+            meta:
+              id: req_701cd7937e6d42f3a8b9eb4c80b30491
+              created: 1751586777372
+              modified: 1751668561131
+              isPrivate: false
+              description: ""
+              sortKey: -1751586777372
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                "email": "julia.souza@example.com",
+                		"senha": "senha123"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.2.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+    scripts:
+      afterResponse: ""
+      preRequest: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_037d5067b6164266bb104940802606e7
+    created: 1750723116785
+    modified: 1750723116785
+environments:
+  name: Base Environment
+  meta:
+    id: env_65471b5cd3564c46b0b31344790ad50e
+    created: 1750723116783
+    modified: 1750723116783
+    isPrivate: false
