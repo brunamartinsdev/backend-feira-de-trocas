@@ -1,9 +1,6 @@
 import cloudinary from '../config/cloudinaryConfig.js';
 
 export const uploadImage = async (request, response) => {
-    console.log("Entering uploadImage controller.");
-    console.log("request.file (in controller):", request.file);
-    console.log("request.files (in controller):", request.files);
     try {
         if (!request.file) { //request.file.buffer contém o buffer da imagem 
             return response.status(400).json({ error: "Nenhum arquivo de imagem foi enviado." });
