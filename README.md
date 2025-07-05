@@ -123,10 +123,14 @@ Para facilitar os testes manuais dos endpoints da API, a coleção do Insomnia e
 
 ### **7. Contribuições da Equipe**
 
-    Anderson Oliveira de Sousa: Desenvolveu os schemas que seriam usados no codigo, atuou também nas etapas de teste da api e revisão final do código.
+- **Anderson Oliveira de Sousa** 
+    Desenvolveu os schemas que seriam usados no codigo, atuou também nas etapas de teste da api e revisão final do código.
 
-    Davi José Lima de Sousa: Atuou nas etapas de teste da API, colaborou com sugestões de melhoria e participou das discussões técnicas da equipe.
+- **Davi José Lima de Sousa** 
+    Atuou nas etapas de teste da API, colaborou com sugestões de melhoria e participou das discussões técnicas da equipe.
 
-    Daiane Rocha: Contribuiu com os testes da aplicação, participou das discussões de equipe e deu suporte no alinhamento das tarefas.
+- **Daiane Rocha**  
+    Contribuiu com os testes da aplicação, participou das discussões de equipe e deu suporte no alinhamento das tarefas.
 
-    Gabriel de Souza Brasil: Responsável pela estruturação inicial do projeto, lógica principal da aplicação e organização do repositório backend. Desenvolveu os controllers de login, implementou o sistema completo de autenticação e autorização com JWT, incluindo hash de senhas com bcrypt, rotas autenticadas e áreas com acesso restrito via validação de permissões (isAdmin). Também configurou o uso de variáveis de ambiente com `.env` para gerenciamento da `SECRET_KEY`, além de contribuir com ajustes finais e suporte à equipe durante o desenvolvimento.
+- **Gabriel de Souza Brasil** 
+    Responsável pela estruturação inicial do projeto, lógica principal da aplicação e organização do repositório backend. Desenvolveu os controllers de login, implementou o sistema completo de autenticação e autorização com JWT, incluindo hash de senhas com bcrypt, rotas autenticadas e áreas com acesso restrito via validação de permissões (isAdmin). Também configurou o uso de variáveis de ambiente com `.env` para gerenciamento da `SECRET_KEY`, além de contribuir com ajustes finais e suporte à equipe durante o desenvolvimento.
