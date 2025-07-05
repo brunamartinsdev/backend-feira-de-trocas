@@ -5,7 +5,8 @@ dotenv.config();
 const SECRET_KEY = process.env.SECRET_KEY;
 
 export const authenticateAdmin = (req, res, next) => {
-  const token = req.headers['authorization'];
+  const authHeader = req.headers['authorization'];
+  const token = authHeader.split(' ')[1];
 
   if (!token) {
     return res.status(403).json({ message: "Token não fornecido!" });
