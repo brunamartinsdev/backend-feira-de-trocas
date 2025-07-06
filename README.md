@@ -124,7 +124,9 @@ Para facilitar os testes manuais dos endpoints da API, a coleção do Insomnia e
 ### **7. Contribuições da Equipe**
 
 - **Anderson Oliveira de Sousa:** 
-    desenvolveu os schemas que seriam usados no codigo, atuou também nas etapas de teste da api e revisão final do código.
+    desenvolveu os schemas que seriam usados no código, atuou também nas etapas de teste da api e revisão final do código.
+
+- **Bruna Martins Combat:** Realizou o desenvolvimento e a implementação dos módulos do backend (Usuário, Item e Proposta), incluindo todas as operações CRUD, lógicas de negócio como busca, filtros e o fluxo de propostas. Organizou a estrutura das pastas do backend com a arquitetura MVC.  Integrou a segurança, implementando o hash de senhas e os controles de acesso por autorização nas rotas de Usuário, Item e Proposta. Desenvolveu a funcionalidade de upload de imagens com Cloudinary e Multer, incluindo a lógica de exclusão. Contribuiu ativamente na resolução de erros, na depuração do backend e na realização de testes manuais. Também participou ativamente nas reuniões e discussões sobre o projeto, além de dar suporte aos colegas do grupo. 
 
 - **Davi José Lima de Sousa:** 
     atuou nas etapas de teste da API, colaborou com sugestões de melhoria e participou das discussões técnicas da equipe.
