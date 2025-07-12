@@ -6,10 +6,11 @@ import propostaRoutes from "./routes/propostaRoutes.js";
 import protectedRoutes from './routes/protectedRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import uploadRoutes from "./routes/uploadRoutes.js";
-
+import cors from "cors";
 
 const app = express();  
 app.use(express.json());
+app.use(cors());
 
 app.use('/login', loginRoutes); 
 
