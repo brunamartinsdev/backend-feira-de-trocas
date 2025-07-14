@@ -66,6 +66,9 @@ const authenticateToken = (req, res, next) => {
     if (req.path.startsWith('/itens/') && req.method === 'GET') {
         return next();
     }
+    if (req.path === '/categorias' && req.method === 'GET') {
+        return next();
+    }
 
     const authHeader = req.headers['authorization'];
 
@@ -73,17 +76,17 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
     }
 
-    const token = authHeader.split(' ')[1]; 
+    const token = authHeader.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ message: 'Formato de token inválido! Use \'Bearer <token>\'.' });
     }
 
-    jwt.verify(token, SECRET_KEY, (err, user) => { 
+    jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) {
             return res.status(401).json({ message: 'Token inválido ou expirado.' });
         }
-        req.user = user; 
+        req.user = user;
 
         next();
     });

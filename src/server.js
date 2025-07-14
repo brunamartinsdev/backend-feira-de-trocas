@@ -6,6 +6,7 @@ import propostaRoutes from "./routes/propostaRoutes.js";
 import protectedRoutes from './routes/protectedRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import uploadRoutes from "./routes/uploadRoutes.js";
+import categoriaRoutes from "./routes/categoriaRoutes.js"
 import cors from "cors";
 
 const app = express();  
@@ -23,6 +24,7 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/itens', itemRoutes);
 app.use('/propostas', propostaRoutes);
 app.use('/uploads', uploadRoutes);
+app.use('/categorias', categoriaRoutes);
 
 
 //rota de administração (protegida pelo JWT e exigem privilégios de admin)
