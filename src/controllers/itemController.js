@@ -13,6 +13,7 @@ const getItens = async (request, response) => {
         where.OR = [
             { nome: { contains: String(busca), mode: "insensitive" } }, //insensitive para ignorar maiúsculas e minúsculas
             { descricao: { contains: String(busca), mode: "insensitive" } },
+            { categoria: { contains: String(busca), mode: "insensitive"}},
         ];
     }
 
