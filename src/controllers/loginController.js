@@ -40,7 +40,15 @@ const login = async (req, res) => {
             }
         );
 
-        return res.json({ token });
+        return res.json({
+       token,
+       usuario: {
+       id: user.id,
+       nome: user.nome,
+       email: user.email,
+       isAdmin: user.isAdmin
+   }
+});
     } catch (error) {
         console.error("Erro no login:", error);
         return res.status(500).json({ message: "Erro interno no servidor" });
