@@ -63,6 +63,27 @@ const getItemById = async (request, response) => {
     }
 };
 
+// controllers/itemController.js
+
+//const prisma = require('../prisma/client');
+
+const getItensDoUsuarioLogado = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const itens = await prisma.item.findMany({
+      where: {
+        usuarioResponsavelId: userId
+      }
+    });
+
+    res.status(200).json(itens);
+  } catch (error) {
+    console.error("Erro ao buscar itens do usuário:", error);
+    res.status(500).json({ error: "Erro ao buscar itens do usuário logado" });
+  }
+};
+
 const createItem = async (request, response) => {
     const { nome, descricao, categoria, foto } = request.body;
     const usuarioResponsavelId = request.user.id; 
@@ -202,7 +223,8 @@ const itensController = {
     getItemById,
     createItem,
     updateItem,
-    deleteItem
+    deleteItem,
+    getItensDoUsuarioLogado
 };
 
 export default itensController;
