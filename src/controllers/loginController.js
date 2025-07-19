@@ -40,7 +40,9 @@ const login = async (req, res) => {
             }
         );
 
-        return res.json({ token });
+        const { senha: _, ...userWithoutPassword } = user; 
+        return res.json({ token, user: userWithoutPassword });
+
     } catch (error) {
         console.error("Erro no login:", error);
         return res.status(500).json({ message: "Erro interno no servidor" });
