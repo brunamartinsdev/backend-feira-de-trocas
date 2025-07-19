@@ -40,8 +40,17 @@ const login = async (req, res) => {
             }
         );
 
-        const { senha: _, ...userWithoutPassword } = user; 
-        return res.json({ token, user: userWithoutPassword });
+        const { senha: _, ...userWithoutPassword } = user;
+
+
+        const usuarioFormatado = {
+            id: userWithoutPassword.id,
+            nome: userWithoutPassword.nome,
+            email: userWithoutPassword.email,
+            isAdmin: userWithoutPassword.isAdmin
+        };
+
+        return res.json({ token, usuario: usuarioFormatado });
 
     } catch (error) {
         console.error("Erro no login:", error);
