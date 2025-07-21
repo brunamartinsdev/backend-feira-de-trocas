@@ -15,6 +15,7 @@ model Usuario {
   isAdmin          Boolean    @default(false)
   propostasFeitas  Proposta[]
   itensCadastrados Item[]
+
 }
 
 model Item {
@@ -30,21 +31,27 @@ model Item {
 
   propostasOfertadas  Proposta[] @relation("ItemOfertado") // Relacionamento com propostas onde este item é ofertado
   propostasDesejadas  Proposta[] @relation("ItemDesejado") // Relacionamento com propostas onde este item é desejado
-}
 
+}
 model Proposta {
-  id               String   @id @default(uuid())
-  status           String   @default("pendente") // Atributo Status da Proposta
+  id                    String   @id @default(uuid())
 
-  // Relacionamento com o Item que está sendo OFERTADO
-  itemOfertado     Item     @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
-  itemOfertadoId   String // Foreign Key para o Item Ofertado
+  quemFezId             String
+  quemFez               Usuario  @relation(fields: [quemFezId], references: [id])
+  
+  itemOfertadoId        String
+  itemOfertado          Item     @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
 
-  // Relacionamento com o Item que está sendo DESEJADO
-  itemDesejado     Item     @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
-  itemDesejadoId   String // Foreign Key para o Item Desejado
+  itemDesejadoId        String
+  itemDesejado          Item     @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
 
-  // Relacionamento com o Usuário que FEZ a proposta
-  quemFez          Usuario  @relation(fields: [quemFezId], references: [id])
-  quemFezId        String // Foreign Key para o Usuário que fez a proposta
+  status                String   @default("pendente")
+
+  mensagem              String?          // Mensagem opcional deixada pelo proponente
+  dataCriacao           DateTime @default(now())
+  dataResposta          DateTime?        // Quando o receptor respondeu
+  responsabilidadeAceita Boolean  @default(false) // Check de aceite de responsabilidade
+
+  createdAt             DateTime @default(now())
 }
+

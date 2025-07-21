@@ -1,13 +1,15 @@
 import prisma from "../models/prismaClient.js";
 
 const createProposta = async (request, response) => {
-    const { itemOfertadoId, itemDesejadoId } = request.body;
-    const quemFezId = request.user.id; //para pegar o id do usuário autenticado
-    const isAdmin = request.user.isAdmin; //se o usuário autenticado é admin
+    const { itemOfertadoId, itemDesejadoId, mensagem } = request.body;
+    const quemFezId = request.user.id;
+    const isAdmin = request.user.isAdmin;
+
     try {
-        const [itemOfertado, itemDesejado] = await prisma.$transaction([ //prisma.$transaction permite fazer várias operações no banco de dados
-            prisma.item.findUnique({ where: { id: itemOfertadoId } }), //procura o item que o usuário está oferecendo
-            prisma.item.findUnique({ where: { id: itemDesejadoId } }), //procura o item que o usuário quer receber
+        // Busca os itens envolvidos
+        const [itemOfertado, itemDesejado] = await prisma.$transaction([
+            prisma.item.findUnique({ where: { id: itemOfertadoId } }),
+            prisma.item.findUnique({ where: { id: itemDesejadoId } }),
         ]);
 
         if (!itemOfertado || !itemDesejado) {
@@ -26,14 +28,73 @@ const createProposta = async (request, response) => {
             return response.status(400).json({ error: "Um dos itens envolvidos não está disponível para troca." });
         }
 
+        const responsavelItemDesejadoId = itemDesejado.usuarioResponsavelId;
+
+        // Verifica se já existe proposta com mesmo item ofertado para este item desejado
+        const propostaRepetida = await prisma.proposta.findFirst({
+            where: {
+                itemOfertadoId,
+                itemDesejadoId,
+                quemFezId,
+            }
+        });
+
+        if (propostaRepetida) {
+            return response.status(400).json({
+                error: "Você já fez uma proposta para este item. Escolha outro item, ou ofereça um item diferente"
+            });
+        }
+
+        // Verifica quantas propostas já foram feitas com esse item para esse mesmo usuário (responsável pelo item desejado)
+        const propostasMesmoUsuario = await prisma.proposta.findMany({
+            where: {
+                itemOfertadoId,
+                quemFezId,
+                itemDesejado: {
+                    usuarioResponsavelId: responsavelItemDesejadoId
+                }
+            }
+        });
+
+        if (propostasMesmoUsuario.length >= 2) {
+            return response.status(400).json({
+                error: "Você já utilizou esse item em duas propostas diferentes para este usuário. Escolha outro item."
+            });
+        }
+
+        // Verifica se já fez mais de 5 propostas com este item HOJE
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const propostasHoje = await prisma.proposta.count({
+            where: {
+                itemOfertadoId,
+                quemFezId,
+                dataCriacao: {
+                    gte: hoje,
+                }
+            }
+        });
+
+        if (propostasHoje >= 5) {
+            return response.status(400).json({
+                error: "Este item já foi usado em 5 propostas hoje. Tente novamente amanhã."
+            });
+        }
+
+        // Criação da proposta
         const proposta = await prisma.proposta.create({
             data: {
                 itemOfertado: { connect: { id: itemOfertadoId } },
                 itemDesejado: { connect: { id: itemDesejadoId } },
                 quemFez: { connect: { id: quemFezId } },
-                status: "pendente"
+                status: "pendente",
+                mensagem: mensagem || undefined,
+                responsabilidadeAceita: true,
+                dataCriacao: new Date()
             }
         });
+
         return response.status(201).json(proposta);
     } catch (error) {
         console.error("Erro ao criar proposta:", error);
@@ -51,16 +112,8 @@ const aceitarProposta = async (request, response) => {
         const proposta = await prisma.proposta.findUnique({
             where: { id },
             include: {
-                itemDesejado: {
-                    select: {
-                        usuarioResponsavelId: true 
-                    }
-                },
-                quemFez: {
-                    select: {
-                        id: true 
-                    }
-                }
+                itemDesejado: { select: { usuarioResponsavelId: true } },
+                quemFez: { select: { id: true } }
             }
         });
 
@@ -73,12 +126,16 @@ const aceitarProposta = async (request, response) => {
         }
 
         if (!isAdmin && proposta.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
-            return response.status(403).json({ error: "Você não tem permissão para aceitar/recusar esta proposta. Apenas o dono do item desejado pode fazê-lo." });
+            return response.status(403).json({ error: "Você não tem permissão para aceitar/recusar esta proposta." });
         }
 
         const propostaAceita = await prisma.proposta.update({
             where: { id },
-            data: { status: 'aceita' }
+            data: {
+                status: 'aceita',
+                dataResposta: new Date(),
+                responsabilidadeAceita: true
+            }
         });
 
         return response.status(200).json({
@@ -92,6 +149,7 @@ const aceitarProposta = async (request, response) => {
     }
 };
 
+
 const recusarProposta = async (request, response) => {
     const { id } = request.params;
     const userIdFromToken = request.user.id;
@@ -101,16 +159,8 @@ const recusarProposta = async (request, response) => {
         const proposta = await prisma.proposta.findUnique({
             where: { id },
             include: {
-                itemDesejado: {
-                    select: {
-                        usuarioResponsavelId: true 
-                    }
-                },
-                quemFez: {
-                    select: {
-                        id: true 
-                    }
-                }
+                itemDesejado: { select: { usuarioResponsavelId: true } },
+                quemFez: { select: { id: true } }
             }
         });
 
@@ -123,14 +173,17 @@ const recusarProposta = async (request, response) => {
         }
 
         if (!isAdmin && proposta.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
-            return response.status(403).json({ error: "Você não tem permissão para aceitar/recusar esta proposta. Apenas o dono do item desejado pode fazê-lo." });
+            return response.status(403).json({ error: "Você não tem permissão para aceitar/recusar esta proposta." });
         }
 
         const propostaRecusada = await prisma.proposta.update({
             where: { id },
-            data: { status: 'recusada' }
+            data: {
+                status: 'recusada',
+                dataResposta: new Date(),
+                responsabilidadeAceita: false
+            }
         });
-
 
         return response.status(200).json({
             message: "Proposta recusada com sucesso!",
