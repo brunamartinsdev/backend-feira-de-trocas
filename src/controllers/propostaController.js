@@ -161,6 +161,7 @@ const getPropostasFeitas = async (req, res) => {
             id: true,
             nome: true,
             categoria: true,
+            foto: true,
             usuarioResponsavelId: true,
             usuarioResponsavel: { select: { id: true, nome: true, email: true } }
           }
@@ -170,6 +171,7 @@ const getPropostasFeitas = async (req, res) => {
             id: true,
             nome: true,
             categoria: true,
+            foto: true,
             usuarioResponsavelId: true
           }
         },
@@ -196,7 +198,6 @@ const getPropostasRecebidas = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    // Primeiro: busca os IDs dos itens do usuário
     const itensDoUsuario = await prisma.item.findMany({
       where: { usuarioResponsavelId: userId },
       select: { id: true }
@@ -205,7 +206,7 @@ const getPropostasRecebidas = async (req, res) => {
     const idsItensDoUsuario = itensDoUsuario.map(item => item.id);
 
     if (idsItensDoUsuario.length === 0) {
-      return res.status(200).json([]); // Nenhum item, logo, nenhuma proposta recebida
+      return res.status(200).json([]);
     }
 
     const propostas = await prisma.proposta.findMany({
@@ -214,13 +215,29 @@ const getPropostasRecebidas = async (req, res) => {
       },
       include: {
         itemDesejado: {
-          select: { id: true, nome: true, categoria: true, usuarioResponsavelId: true }
+          select: {
+            id: true,
+            nome: true,
+            categoria: true,
+            foto: true,
+            usuarioResponsavelId: true
+          }
         },
         itemOfertado: {
-          select: { id: true, nome: true, categoria: true, usuarioResponsavelId: true }
+          select: {
+            id: true,
+            nome: true,
+            categoria: true,
+            foto: true,
+            usuarioResponsavelId: true
+          }
         },
         quemFez: {
-          select: { id: true, nome: true, email: true }
+          select: {
+            id: true,
+            nome: true,
+            email: true
+          }
         }
       }
     });
