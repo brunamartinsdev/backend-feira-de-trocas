@@ -148,7 +148,89 @@ const aceitarProposta = async (request, response) => {
         return response.status(500).json({ error: "Erro interno ao aceitar proposta." });
     }
 };
+// Buscar propostas feitas pelo usuário logado
+const getPropostasFeitas = async (req, res) => {
+  const userId = req.user.id;
 
+  try {
+    const propostas = await prisma.proposta.findMany({
+      where: { quemFezId: userId },
+      include: {
+        itemDesejado: {
+          select: {
+            id: true,
+            nome: true,
+            categoria: true,
+            usuarioResponsavelId: true,
+            usuarioResponsavel: { select: { id: true, nome: true, email: true } }
+          }
+        },
+        itemOfertado: {
+          select: {
+            id: true,
+            nome: true,
+            categoria: true,
+            usuarioResponsavelId: true
+          }
+        },
+        quemFez: {
+          select: {
+            id: true,
+            nome: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    res.json(propostas);
+  } catch (error) {
+    console.error("Erro ao buscar propostas feitas:", error);
+    res.status(500).json({ error: 'Erro ao buscar propostas feitas' });
+  }
+};
+
+
+// Buscar propostas recebidas pelo usuário logado
+const getPropostasRecebidas = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    // Primeiro: busca os IDs dos itens do usuário
+    const itensDoUsuario = await prisma.item.findMany({
+      where: { usuarioResponsavelId: userId },
+      select: { id: true }
+    });
+
+    const idsItensDoUsuario = itensDoUsuario.map(item => item.id);
+
+    if (idsItensDoUsuario.length === 0) {
+      return res.status(200).json([]); // Nenhum item, logo, nenhuma proposta recebida
+    }
+
+    const propostas = await prisma.proposta.findMany({
+      where: {
+        itemDesejadoId: { in: idsItensDoUsuario }
+      },
+      include: {
+        itemDesejado: {
+          select: { id: true, nome: true, categoria: true, usuarioResponsavelId: true }
+        },
+        itemOfertado: {
+          select: { id: true, nome: true, categoria: true, usuarioResponsavelId: true }
+        },
+        quemFez: {
+          select: { id: true, nome: true, email: true }
+        }
+      }
+    });
+
+    res.json(propostas);
+  } catch (error) {
+    console.error("Erro ao buscar propostas recebidas:", error);
+    res.status(500).json({ error: 'Erro ao buscar propostas recebidas' });
+  }
+};
 
 const recusarProposta = async (request, response) => {
     const { id } = request.params;
@@ -343,7 +425,9 @@ const propostasController = {
     recusarProposta,
     getPropostas,
     getPropostaById,
-    deleteProposta
+    deleteProposta,
+    getPropostasFeitas,
+    getPropostasRecebidas
 };
 
 export default propostasController;
