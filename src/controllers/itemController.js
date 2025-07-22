@@ -2,19 +2,24 @@ import prisma from "../models/prismaClient.js";
 import cloudinary from '../config/cloudinaryConfig.js';
 
 const getItens = async (request, response) => {
-    const { categoria, busca } = request.query;
+    const { categoria, busca, usuarioResponsavelId } = request.query;
     const where = {};
 
     if (categoria) {
-        where.categoria = String(categoria); //para filtrar por categoria
+        where.categoria = {
+            equals: String(categoria),
+            mode: "insensitive"
+        };
     }
-
-    if (busca) { //para buscar por palavra-chave com nome ou descrição
+    if (busca) {
         where.OR = [
-            { nome: { contains: String(busca), mode: "insensitive" } }, //insensitive para ignorar maiúsculas e minúsculas
+            { nome: { contains: String(busca), mode: "insensitive" } },
             { descricao: { contains: String(busca), mode: "insensitive" } },
-            { categoria: { contains: String(busca), mode: "insensitive"}},
+            { categoria: { contains: String(busca), mode: "insensitive" } },
         ];
+    }
+    if (usuarioResponsavelId) {
+        where.usuarioResponsavelId = String(usuarioResponsavelId);
     }
 
     try {
@@ -63,30 +68,30 @@ const getItemById = async (request, response) => {
     }
 };
 
-// controllers/itemController.js
 
-//const prisma = require('../prisma/client');
+
+// const prisma = require('../prisma/client');
 
 const getItensDoUsuarioLogado = async (req, res) => {
-  try {
-    const userId = req.user.id;
+    try {
+        const userId = req.user.id;
 
-    const itens = await prisma.item.findMany({
-      where: {
-        usuarioResponsavelId: userId
-      }
-    });
+        const itens = await prisma.item.findMany({
+            where: {
+                usuarioResponsavelId: userId
+            }
+        });
 
-    res.status(200).json(itens);
-  } catch (error) {
-    console.error("Erro ao buscar itens do usuário:", error);
-    res.status(500).json({ error: "Erro ao buscar itens do usuário logado" });
-  }
+        res.status(200).json(itens);
+    } catch (error) {
+        console.error("Erro ao buscar itens do usuário:", error);
+        res.status(500).json({ error: "Erro ao buscar itens do usuário logado" });
+    }
 };
 
 const createItem = async (request, response) => {
     const { nome, descricao, categoria, foto } = request.body;
-    const usuarioResponsavelId = request.user.id; 
+    const usuarioResponsavelId = request.user.id;
 
     try {
         const item = await prisma.item.create({
@@ -174,18 +179,18 @@ const deleteItem = async (request, response) => {
                     //divide o caminho usando a /
                     const partes = caminhoCompleto.split('/');
 
-                    let publicIdParaExcluir; 
+                    let publicIdParaExcluir;
 
                     //verifica se tem a versão na URl
                     if (partes.length > 1 && partes[0].startsWith('v') && !isNaN(parseInt(partes[0].substring(1)))) {
                         publicIdParaExcluir = partes.slice(1).join('/').split('.')[0];
                     } else {
                         //se não tiver versão
-                        publicIdParaExcluir = caminhoCompleto.split('.')[0]; 
+                        publicIdParaExcluir = caminhoCompleto.split('.')[0];
                     }
 
                     //chama a API do Cloudinary para deletar a imagem
-                    const cloudinaryDeleteResultado = await cloudinary.uploader.destroy(publicIdParaExcluir); 
+                    const cloudinaryDeleteResultado = await cloudinary.uploader.destroy(publicIdParaExcluir);
 
                     if (cloudinaryDeleteResultado.result === 'ok') {
                     } else {

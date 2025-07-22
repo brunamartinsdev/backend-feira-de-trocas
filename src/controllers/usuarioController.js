@@ -145,12 +145,42 @@ const deleteUsuario = async (request, response) => {
     }
 };
 
+const getTrocasRealizadasCount = async (request, response) => {
+    const { id } = request.params; 
+
+    try {
+        const propostasFeitasAceitas = await prisma.proposta.count({
+            where: {
+                usuarioProponenteId: id,
+                status: 'aceita' 
+            }
+        });
+
+        const propostasRecebidasAceitas = await prisma.proposta.count({
+            where: {
+                itemProposto: {
+                    usuarioResponsavelId: id
+                },
+                status: 'aceita' 
+            }
+        });
+
+        const totalTrocas = propostasFeitasAceitas + propostasRecebidasAceitas;
+
+        return response.status(200).json({ trocasRealizadas: totalTrocas });
+    } catch (error) {
+        console.error("Erro ao buscar contagem de trocas realizadas:", error);
+        return response.status(500).json({ error: "Erro interno ao buscar contagem de trocas." });
+    }
+};
+
 const usuariosController = {
     getUsuarios,
     getUsuarioById,
     createUsuario,
     updateUsuario,
-    deleteUsuario
+    deleteUsuario,
+    getTrocasRealizadasCount
 };
 
 export default usuariosController;
