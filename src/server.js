@@ -15,7 +15,6 @@ app.use(cors());
 
 app.use('/login', loginRoutes); 
 
-
 //tudo que vem depois de protectedRoutes exigirá um JWT válido
 app.use('/', protectedRoutes);
 
