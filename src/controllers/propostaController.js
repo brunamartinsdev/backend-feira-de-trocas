@@ -6,11 +6,12 @@ const createProposta = async (request, response) => {
     const isAdmin = request.user.isAdmin;
 
     try {
-        // Busca os itens envolvidos
         const [itemOfertado, itemDesejado] = await prisma.$transaction([
             prisma.item.findUnique({ where: { id: itemOfertadoId } }),
             prisma.item.findUnique({ where: { id: itemDesejadoId } }),
         ]);
+
+        const quemRecebeuId = itemDesejado.usuarioResponsavelId;
 
         if (!itemOfertado || !itemDesejado) {
             return response.status(404).json({ error: "Item(ns) ou usuário não encontrado." });
@@ -30,7 +31,6 @@ const createProposta = async (request, response) => {
 
         const responsavelItemDesejadoId = itemDesejado.usuarioResponsavelId;
 
-        // Verifica se já existe proposta com mesmo item ofertado para este item desejado
         const propostaRepetida = await prisma.proposta.findFirst({
             where: {
                 itemOfertadoId,
@@ -45,7 +45,6 @@ const createProposta = async (request, response) => {
             });
         }
 
-        // Verifica quantas propostas já foram feitas com esse item para esse mesmo usuário (responsável pelo item desejado)
         const propostasMesmoUsuario = await prisma.proposta.findMany({
             where: {
                 itemOfertadoId,
@@ -82,12 +81,12 @@ const createProposta = async (request, response) => {
             });
         }
 
-        // Criação da proposta
         const proposta = await prisma.proposta.create({
             data: {
                 itemOfertado: { connect: { id: itemOfertadoId } },
                 itemDesejado: { connect: { id: itemDesejadoId } },
                 quemFez: { connect: { id: quemFezId } },
+                quemRecebeu: { connect: { id: quemRecebeuId } },
                 status: "pendente",
                 mensagem: mensagem || undefined,
                 responsabilidadeAceita: true,
@@ -106,148 +105,119 @@ const createProposta = async (request, response) => {
 const aceitarProposta = async (request, response) => {
     const { id } = request.params;
     const userIdFromToken = request.user.id;
-    const isAdmin = request.user.isAdmin;
 
     try {
-        const proposta = await prisma.proposta.findUnique({
+        const propostaOriginal = await prisma.proposta.findUnique({
             where: { id },
             include: {
-                itemDesejado: { select: { usuarioResponsavelId: true } },
-                quemFez: { select: { id: true } }
+                itemOfertado: { select: { id: true, usuarioResponsavelId: true } },
+                itemDesejado: { select: { id: true, usuarioResponsavelId: true } },
             }
         });
 
-        if (!proposta) {
+        if (!propostaOriginal) {
             return response.status(404).json({ error: "Proposta não encontrada." });
         }
 
-        if (proposta.status === 'aceita' || proposta.status === 'recusada') {
-            return response.status(400).json({ error: "Esta proposta já foi aceita ou recusada." });
+        if (propostaOriginal.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
+            return response.status(403).json({ error: "Não tem permissão para aceitar esta proposta." });
         }
 
-        if (!isAdmin && proposta.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
-            return response.status(403).json({ error: "Você não tem permissão para aceitar/recusar esta proposta." });
+        if (propostaOriginal.status !== 'pendente') {
+            return response.status(400).json({ error: `Esta proposta já foi '${propostaOriginal.status}'.` });
         }
 
-        const propostaAceita = await prisma.proposta.update({
-            where: { id },
-            data: {
-                status: 'aceita',
-                dataResposta: new Date(),
-                responsabilidadeAceita: true
-            }
+        const resultadoTransacao = await prisma.$transaction(async (tx) => {
+            
+            const propostaAceita = await tx.proposta.update({
+                where: { id: propostaOriginal.id },
+                data: { status: 'aceita', dataResposta: new Date() }
+            });
+
+            await tx.item.update({
+                where: { id: propostaOriginal.itemOfertado.id },
+                data: {
+                    status: 'Trocado',
+                    usuarioResponsavelId: propostaOriginal.itemDesejado.usuarioResponsavelId
+                }
+            });
+
+            await tx.item.update({
+                where: { id: propostaOriginal.itemDesejado.id },
+                data: {
+                    status: 'Trocado',
+                    usuarioResponsavelId: propostaOriginal.itemOfertado.usuarioResponsavelId
+                }
+            });
+
+            await tx.proposta.updateMany({
+                where: {
+                    status: 'pendente',
+                    OR: [
+                        { itemOfertadoId: propostaOriginal.itemOfertado.id },
+                        { itemDesejadoId: propostaOriginal.itemOfertado.id },
+                        { itemOfertadoId: propostaOriginal.itemDesejado.id },
+                        { itemDesejadoId: propostaOriginal.itemDesejado.id },
+                    ]
+                },
+                data: { status: 'cancelada' }
+            });
+
+            return propostaAceita;
         });
 
         return response.status(200).json({
-            message: "Proposta aceita com sucesso!",
-            proposta: propostaAceita
+            message: "Troca concluída com sucesso!",
+            proposta: resultadoTransacao
         });
 
     } catch (error) {
         console.error("Erro ao aceitar proposta:", error);
-        return response.status(500).json({ error: "Erro interno ao aceitar proposta." });
+        return response.status(500).json({ error: "Erro interno ao concluir a troca." });
     }
 };
-// Buscar propostas feitas pelo usuário logado
+
 const getPropostasFeitas = async (req, res) => {
-  const userId = req.user.id;
-
-  try {
-    const propostas = await prisma.proposta.findMany({
-      where: { quemFezId: userId },
-      include: {
-        itemDesejado: {
-          select: {
-            id: true,
-            nome: true,
-            categoria: true,
-            foto: true,
-            usuarioResponsavelId: true,
-            usuarioResponsavel: { select: { id: true, nome: true, email: true } }
-          }
-        },
-        itemOfertado: {
-          select: {
-            id: true,
-            nome: true,
-            categoria: true,
-            foto: true,
-            usuarioResponsavelId: true
-          }
-        },
-        quemFez: {
-          select: {
-            id: true,
-            nome: true,
-            email: true
-          }
-        }
-      }
-    });
-
-    res.json(propostas);
-  } catch (error) {
-    console.error("Erro ao buscar propostas feitas:", error);
-    res.status(500).json({ error: 'Erro ao buscar propostas feitas' });
-  }
-};
-
-
-// Buscar propostas recebidas pelo usuário logado
-const getPropostasRecebidas = async (req, res) => {
-  const userId = req.user.id;
-
-  try {
-    const itensDoUsuario = await prisma.item.findMany({
-      where: { usuarioResponsavelId: userId },
-      select: { id: true }
-    });
-
-    const idsItensDoUsuario = itensDoUsuario.map(item => item.id);
-
-    if (idsItensDoUsuario.length === 0) {
-      return res.status(200).json([]);
+    const userId = req.user.id;
+    try {
+        const propostas = await prisma.proposta.findMany({
+            where: { quemFezId: userId },
+            include: {
+                itemDesejado: true,
+                itemOfertado: true,
+                quemRecebeu: {
+                    select: {
+                        nome: true 
+                    }
+                }
+            }
+        });
+        res.json(propostas);
+    } catch (error) {
+        console.error("Erro ao buscar propostas feitas:", error);
+        res.status(500).json({ error: 'Erro ao buscar propostas feitas' });
     }
-
-    const propostas = await prisma.proposta.findMany({
-      where: {
-        itemDesejadoId: { in: idsItensDoUsuario }
-      },
-      include: {
-        itemDesejado: {
-          select: {
-            id: true,
-            nome: true,
-            categoria: true,
-            foto: true,
-            usuarioResponsavelId: true
-          }
-        },
-        itemOfertado: {
-          select: {
-            id: true,
-            nome: true,
-            categoria: true,
-            foto: true,
-            usuarioResponsavelId: true
-          }
-        },
-        quemFez: {
-          select: {
-            id: true,
-            nome: true,
-            email: true
-          }
-        }
-      }
-    });
-
-    res.json(propostas);
-  } catch (error) {
-    console.error("Erro ao buscar propostas recebidas:", error);
-    res.status(500).json({ error: 'Erro ao buscar propostas recebidas' });
-  }
 };
+
+
+const getPropostasRecebidas = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const propostas = await prisma.proposta.findMany({
+            where: { quemRecebeuId: userId },
+            include: {
+                itemDesejado: true,
+                itemOfertado: true,
+                quemFez: { select: { id: true, nome: true } }
+            }
+        });
+        res.json(propostas);
+    } catch (error) {
+        console.error("Erro ao buscar propostas recebidas:", error);
+        res.status(500).json({ error: 'Erro ao buscar propostas recebidas' });
+    }
+};
+
 
 const recusarProposta = async (request, response) => {
     const { id } = request.params;
@@ -301,23 +271,23 @@ const getPropostas = async (request, response) => {
     const userIdFromToken = request.user ? request.user.id : null;
     const isAdmin = request.user ? request.user.isAdmin : false;
 
-    const where = {}; 
-    if (status) { 
+    const where = {};
+    if (status) {
         where.status = String(status);
     }
 
-    if (quemFezId) { 
+    if (quemFezId) {
         if (quemFezId !== userIdFromToken && !isAdmin) {
-             return response.status(403).json({ error: "Você não tem permissão para ver propostas de outros usuários." });
+            return response.status(403).json({ error: "Você não tem permissão para ver propostas de outros usuários." });
         }
         where.quemFezId = String(quemFezId);
     } else if (!isAdmin && userIdFromToken) {
 
         const userOwnedItems = await prisma.item.findMany({
             where: { usuarioResponsavelId: userIdFromToken },
-            select: { id: true } 
+            select: { id: true }
         });
-        const userOwnedItemIds = userOwnedItems.map(item => item.id); 
+        const userOwnedItemIds = userOwnedItems.map(item => item.id);
 
         const relevantProposalsConditions = [];
 
@@ -397,16 +367,14 @@ const getPropostaById = async (request, response) => {
 
 const deleteProposta = async (request, response) => {
     const { id } = request.params; 
-    const userIdFromToken = request.user.id; 
-    const isAdmin = request.user.isAdmin;   
+    const userIdFromToken = request.user.id;
 
     try {
         const proposta = await prisma.proposta.findUnique({
             where: { id },
-            include: {
-                itemOfertado: { select: { usuarioResponsavelId: true } }, 
-                itemDesejado: { select: { usuarioResponsavelId: true } }, 
-                quemFez: { select: { id: true } }
+            select: {
+                quemFezId: true,
+                status: true
             }
         });
 
@@ -414,11 +382,14 @@ const deleteProposta = async (request, response) => {
             return response.status(404).json({ error: "Proposta não encontrada." });
         }
 
-        const isProponente = proposta.quemFez.id === userIdFromToken;
-        const isDesiredItemOwner = proposta.itemDesejado.usuarioResponsavelId === userIdFromToken;
+        //apenas o utilizador que fez a proposta pode apagá-la
+        if (proposta.quemFezId !== userIdFromToken) {
+            return response.status(403).json({ error: "Não tem permissão para cancelar esta proposta." });
+        }
 
-        if (!isProponente && !isDesiredItemOwner && !isAdmin) {
-            return response.status(403).json({ error: "Você não tem permissão para excluir esta proposta." });
+        //apenas propostas pendentes podem ser canceladas
+        if (proposta.status !== 'pendente') {
+            return response.status(400).json({ error: `Não é possível cancelar uma proposta com status '${proposta.status}'.` });
         }
 
         await prisma.proposta.delete({
@@ -427,11 +398,8 @@ const deleteProposta = async (request, response) => {
 
         return response.status(204).send();
     } catch (error) {
-        console.error("Erro ao deletar proposta:", error);
-        if (error.code === 'P2025') {
-            return response.status(404).json({ error: "Proposta não encontrada para exclusão." });
-        }
-        return response.status(500).json({ error: "Erro interno ao deletar proposta." });
+        console.error("Erro ao apagar proposta:", error);
+        return response.status(500).json({ error: "Erro interno ao apagar a proposta." });
     }
 };
 

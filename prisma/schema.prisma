@@ -8,14 +8,22 @@ datasource db {
 }
 
 model Usuario {
-  id               String     @id @default(uuid())
-  nome             String     @db.VarChar(30)
-  email            String     @unique @db.VarChar(30)
-  senha            String
-  isAdmin          Boolean    @default(false)
-  propostasFeitas  Proposta[]
-  itensCadastrados Item[]
+  id                  String     @id @default(uuid())
+  nome                String
+  email               String     @unique
+  senha               String
+  isAdmin             Boolean    @default(false)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
 
+  // Um utilizador tem uma lista de itens
+  itens               Item[]
+
+  // Um utilizador pode ter FEITO várias propostas.
+  propostasFeitas     Proposta[] @relation("PropostasFeitas")
+
+  // Um utilizador pode ter RECEBIDO várias propostas.
+  propostasRecebidas  Proposta[] @relation("PropostasRecebidas")
 }
 
 model Item {
@@ -33,25 +41,29 @@ model Item {
   propostasDesejadas  Proposta[] @relation("ItemDesejado") // Relacionamento com propostas onde este item é desejado
 
 }
+
 model Proposta {
-  id                    String   @id @default(uuid())
+  id                      String    @id @default(uuid())
+  status                  String    @default("pendente")
+  mensagem                String?
+  dataCriacao             DateTime  @default(now())
+  dataResposta            DateTime?
+  responsabilidadeAceita  Boolean   @default(false)
+  createdAt               DateTime  @default(now())
 
-  quemFezId             String
-  quemFez               Usuario  @relation(fields: [quemFezId], references: [id])
-  
-  itemOfertadoId        String
-  itemOfertado          Item     @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
+  // Relação para o item ofertado
+  itemOfertadoId          String
+  itemOfertado            Item      @relation("ItemOfertado", fields: [itemOfertadoId], references: [id])
 
-  itemDesejadoId        String
-  itemDesejado          Item     @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
+  // Relação para o item desejado
+  itemDesejadoId          String
+  itemDesejado            Item      @relation("ItemDesejado", fields: [itemDesejadoId], references: [id])
 
-  status                String   @default("pendente")
+  // Relação para quem FEZ a proposta
+  quemFezId               String
+  quemFez                 Usuario   @relation("PropostasFeitas", fields: [quemFezId], references: [id])
 
-  mensagem              String?          // Mensagem opcional deixada pelo proponente
-  dataCriacao           DateTime @default(now())
-  dataResposta          DateTime?        // Quando o receptor respondeu
-  responsabilidadeAceita Boolean  @default(false) // Check de aceite de responsabilidade
-
-  createdAt             DateTime @default(now())
+  // Relação para quem RECEBEU a proposta
+  quemRecebeuId           String
+  quemRecebeu             Usuario   @relation("PropostasRecebidas", fields: [quemRecebeuId], references: [id])
 }
-

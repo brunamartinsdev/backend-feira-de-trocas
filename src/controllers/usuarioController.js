@@ -1,5 +1,5 @@
 import prisma from "../models/prismaClient.js";
-import bcrypt from 'bcryptjs'; 
+import bcrypt from 'bcryptjs';
 
 const getUsuarios = async (request, response) => {
     try {
@@ -17,20 +17,38 @@ const getUsuarios = async (request, response) => {
 
 const getUsuarioById = async (request, response) => {
     const { id } = request.params;
-    const userIdFromToken = request.user ? request.user.id : null;
-    const isAdmin = request.user ? request.user.isAdmin : false;
 
     try {
         const usuario = await prisma.usuario.findUnique({
-            where: { id }
+            where: { id },
+            select: {
+                id: true,
+                nome: true,
+                email: true
+            }
         });
 
         if (!usuario) {
             return response.status(404).json({ error: "Usuário não encontrado." });
         }
 
-        const { senha: _, ...usuarioSemSenha } = usuario;
-        return response.status(200).json(usuarioSemSenha);
+        const trocasRealizadas = await prisma.proposta.count({
+            where: {
+                status: 'aceita',
+                OR: [
+                    { quemFezId: id },
+                    { quemRecebeuId: id }
+                ]
+            }
+        });
+
+        const perfilPublico = {
+            ...usuario,
+            tradesCount: trocasRealizadas
+        };
+
+        return response.status(200).json(perfilPublico);
+
     } catch (error) {
         console.error("Erro ao buscar usuário por Id: ", error);
         return response.status(500).json({ error: "Erro interno ao buscar usuário por Id." });
@@ -38,7 +56,7 @@ const getUsuarioById = async (request, response) => {
 };
 
 const createUsuario = async (request, response) => {
-    const { nome, email, senha } = request.body; 
+    const { nome, email, senha } = request.body;
 
     try {
 
@@ -53,7 +71,7 @@ const createUsuario = async (request, response) => {
         });
 
         const { senha: _, ...usuarioSemSenha } = usuario;
-        return response.status(201).json(usuarioSemSenha); 
+        return response.status(201).json(usuarioSemSenha);
     } catch (error) {
         console.error("Erro ao criar usuário: ", error);
         if (error.code === 'P2002') { //erro de e-mail duplicado
@@ -65,10 +83,10 @@ const createUsuario = async (request, response) => {
 
 const updateUsuario = async (request, response) => {
     const { id } = request.params;
-    const { nome, email, senha } = request.body; 
+    const { nome, email, senha } = request.body;
 
     const userIdFromToken = request.user.id;
-    const isUserAdmin = request.user.isAdmin; 
+    const isUserAdmin = request.user.isAdmin;
 
     try {
         const userExists = await prisma.usuario.findUnique({
@@ -83,14 +101,14 @@ const updateUsuario = async (request, response) => {
             return response.status(403).json({ error: "Você não tem permissão para atualizar este usuário." });
         }
 
-        let dataToUpdate = { nome, email }; 
+        let dataToUpdate = { nome, email };
         if (senha) {
-            dataToUpdate.senha = await bcrypt.hash(senha, 10); 
+            dataToUpdate.senha = await bcrypt.hash(senha, 10);
         }
 
         const usuarioAtualizado = await prisma.usuario.update({
             where: { id },
-            data: dataToUpdate 
+            data: dataToUpdate
         });
 
         const { senha: _, ...usuarioSemSenha } = usuarioAtualizado;
@@ -109,8 +127,8 @@ const updateUsuario = async (request, response) => {
 
 const deleteUsuario = async (request, response) => {
     const { id } = request.params;
-    const userIdFromToken = request.user.id; 
-    const isUserAdmin = request.user.isAdmin; 
+    const userIdFromToken = request.user.id;
+    const isUserAdmin = request.user.isAdmin;
 
     try {
         const usuario = await prisma.usuario.findUnique({
@@ -146,13 +164,13 @@ const deleteUsuario = async (request, response) => {
 };
 
 const getTrocasRealizadasCount = async (request, response) => {
-    const { id } = request.params; 
+    const { id } = request.params;
 
     try {
         const propostasFeitasAceitas = await prisma.proposta.count({
             where: {
                 usuarioProponenteId: id,
-                status: 'aceita' 
+                status: 'aceita'
             }
         });
 
@@ -161,7 +179,7 @@ const getTrocasRealizadasCount = async (request, response) => {
                 itemProposto: {
                     usuarioResponsavelId: id
                 },
-                status: 'aceita' 
+                status: 'aceita'
             }
         });
 
