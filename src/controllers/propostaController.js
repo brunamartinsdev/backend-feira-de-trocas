@@ -2,29 +2,36 @@ import prisma from "../models/prismaClient.js";
 
 const createProposta = async (request, response) => {
     const { itemOfertadoId, itemDesejadoId, mensagem } = request.body;
-    const quemFezId = request.user.id;
+    const quemFez = request.user;
+    const quemFezId = quemFez.id;
     const isAdmin = request.user.isAdmin;
 
     try {
         const [itemOfertado, itemDesejado] = await prisma.$transaction([
             prisma.item.findUnique({ where: { id: itemOfertadoId } }),
-            prisma.item.findUnique({ where: { id: itemDesejadoId } }),
+            prisma.item.findUnique({
+                where: { id: itemDesejadoId },
+                select: {
+                    id: true,
+                    nome: true,
+                    usuarioResponsavelId: true,
+                    status: true
+                }
+            }),
         ]);
+
+        if (!itemOfertado || !itemDesejado) {
+            return response.status(404).json({ error: "Item(ns) ou utilizador não encontrado." });
+        }
 
         const quemRecebeuId = itemDesejado.usuarioResponsavelId;
 
-        if (!itemOfertado || !itemDesejado) {
-            return response.status(404).json({ error: "Item(ns) ou usuário não encontrado." });
-        }
-
         if (itemOfertado.usuarioResponsavelId !== quemFezId && !isAdmin) {
-            return response.status(403).json({ error: "O item ofertado não pertence ao seu usuário ou você não tem permissão para usá-lo." });
+            return response.status(403).json({ error: "O item ofertado não pertence ao seu utilizador ou não tem permissão para usá-lo." });
         }
-
         if (itemDesejado.usuarioResponsavelId === quemFezId) {
             return response.status(400).json({ error: "Não é possível propor troca por um item seu." });
         }
-
         if (itemOfertado.status !== "Disponível" || itemDesejado.status !== "Disponível") {
             return response.status(400).json({ error: "Um dos itens envolvidos não está disponível para troca." });
         }
@@ -57,11 +64,10 @@ const createProposta = async (request, response) => {
 
         if (propostasMesmoUsuario.length >= 2) {
             return response.status(400).json({
-                error: "Você já utilizou esse item em duas propostas diferentes para este usuário. Escolha outro item."
+                error: "Você já utilizou esse item em duas propostas diferentes para este utilizador. Escolha outro item."
             });
         }
 
-        // Verifica se já fez mais de 5 propostas com este item HOJE
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
 
@@ -93,6 +99,13 @@ const createProposta = async (request, response) => {
                 dataCriacao: new Date()
             }
         });
+        await prisma.notificacao.create({
+            data: {
+                destinatarioId: quemRecebeuId,
+                mensagem: `${quemFez.nome} fez uma proposta pelo seu item "${itemDesejado.nome}".`,
+                link: '/minhas-propostas'
+            }
+        });
 
         return response.status(201).json(proposta);
     } catch (error) {
@@ -102,80 +115,6 @@ const createProposta = async (request, response) => {
 };
 
 
-const aceitarProposta = async (request, response) => {
-    const { id } = request.params;
-    const userIdFromToken = request.user.id;
-
-    try {
-        const propostaOriginal = await prisma.proposta.findUnique({
-            where: { id },
-            include: {
-                itemOfertado: { select: { id: true, usuarioResponsavelId: true } },
-                itemDesejado: { select: { id: true, usuarioResponsavelId: true } },
-            }
-        });
-
-        if (!propostaOriginal) {
-            return response.status(404).json({ error: "Proposta não encontrada." });
-        }
-
-        if (propostaOriginal.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
-            return response.status(403).json({ error: "Não tem permissão para aceitar esta proposta." });
-        }
-
-        if (propostaOriginal.status !== 'pendente') {
-            return response.status(400).json({ error: `Esta proposta já foi '${propostaOriginal.status}'.` });
-        }
-
-        const resultadoTransacao = await prisma.$transaction(async (tx) => {
-            
-            const propostaAceita = await tx.proposta.update({
-                where: { id: propostaOriginal.id },
-                data: { status: 'aceita', dataResposta: new Date() }
-            });
-
-            await tx.item.update({
-                where: { id: propostaOriginal.itemOfertado.id },
-                data: {
-                    status: 'Trocado',
-                    usuarioResponsavelId: propostaOriginal.itemDesejado.usuarioResponsavelId
-                }
-            });
-
-            await tx.item.update({
-                where: { id: propostaOriginal.itemDesejado.id },
-                data: {
-                    status: 'Trocado',
-                    usuarioResponsavelId: propostaOriginal.itemOfertado.usuarioResponsavelId
-                }
-            });
-
-            await tx.proposta.updateMany({
-                where: {
-                    status: 'pendente',
-                    OR: [
-                        { itemOfertadoId: propostaOriginal.itemOfertado.id },
-                        { itemDesejadoId: propostaOriginal.itemOfertado.id },
-                        { itemOfertadoId: propostaOriginal.itemDesejado.id },
-                        { itemDesejadoId: propostaOriginal.itemDesejado.id },
-                    ]
-                },
-                data: { status: 'cancelada' }
-            });
-
-            return propostaAceita;
-        });
-
-        return response.status(200).json({
-            message: "Troca concluída com sucesso!",
-            proposta: resultadoTransacao
-        });
-
-    } catch (error) {
-        console.error("Erro ao aceitar proposta:", error);
-        return response.status(500).json({ error: "Erro interno ao concluir a troca." });
-    }
-};
 
 const getPropostasFeitas = async (req, res) => {
     const userId = req.user.id;
@@ -187,7 +126,7 @@ const getPropostasFeitas = async (req, res) => {
                 itemOfertado: true,
                 quemRecebeu: {
                     select: {
-                        nome: true 
+                        nome: true
                     }
                 }
             }
@@ -218,17 +157,103 @@ const getPropostasRecebidas = async (req, res) => {
     }
 };
 
+const aceitarProposta = async (request, response) => {
+    const { id } = request.params;
+    const userIdFromToken = request.user.id;
+
+    try {
+        const propostaOriginal = await prisma.proposta.findUnique({
+            where: { id },
+            include: {
+                itemOfertado: { select: { id: true, nome: true, usuarioResponsavelId: true } },
+                itemDesejado: { select: { id: true, nome: true, usuarioResponsavelId: true } },
+                quemFez: { select: { id: true, nome: true } }
+            }
+        });
+
+        if (!propostaOriginal) {
+            return response.status(404).json({ error: "Proposta não encontrada." });
+        }
+        if (propostaOriginal.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
+            return response.status(403).json({ error: "Não tem permissão para aceitar esta proposta." });
+        }
+        if (propostaOriginal.status !== 'pendente') {
+            return response.status(400).json({ error: `Esta proposta já foi '${propostaOriginal.status}'.` });
+        }
+
+        const resultadoTransacao = await prisma.$transaction(async (tx) => {
+            const propostaAceita = await tx.proposta.update({
+                where: { id: propostaOriginal.id },
+                data: { status: 'aceita', dataResposta: new Date() }
+            });
+
+            await tx.item.update({
+                where: { id: propostaOriginal.itemOfertado.id },
+                data: { status: 'Trocado', usuarioResponsavelId: propostaOriginal.itemDesejado.usuarioResponsavelId }
+            });
+            await tx.item.update({
+                where: { id: propostaOriginal.itemDesejado.id },
+                data: { status: 'Trocado', usuarioResponsavelId: propostaOriginal.itemOfertado.usuarioResponsavelId }
+            });
+
+            await tx.notificacao.create({
+                data: {
+                    destinatarioId: propostaOriginal.quemFez.id,
+                    mensagem: `Boas notícias! A sua proposta pelo item "${propostaOriginal.itemDesejado.nome}" foi aceita.`,
+                    link: '/minhas-propostas'
+                }
+            });
+
+            const propostasParaCancelar = await tx.proposta.findMany({
+                where: {
+                    id: { not: propostaOriginal.id },
+                    status: 'pendente',
+                    OR: [
+                        { itemOfertadoId: propostaOriginal.itemOfertado.id },
+                        { itemDesejadoId: propostaOriginal.itemOfertado.id },
+                        { itemOfertadoId: propostaOriginal.itemDesejado.id },
+                        { itemDesejadoId: propostaOriginal.itemDesejado.id },
+                    ]
+                },
+                select: { id: true, quemFezId: true, itemOfertado: { select: { nome: true } } }
+            });
+
+            if (propostasParaCancelar.length > 0) {
+                await tx.proposta.updateMany({
+                    where: { id: { in: propostasParaCancelar.map(p => p.id) } },
+                    data: { status: 'cancelada' }
+                });
+
+                const notificacoesCanceladas = propostasParaCancelar.map(p => ({
+                    destinatarioId: p.quemFezId,
+                    mensagem: `A sua proposta pelo item "${p.itemOfertado.nome}" foi cancelada, pois um dos itens já foi trocado.`,
+                    link: '/minhas-propostas'
+                }));
+                await tx.notificacao.createMany({ data: notificacoesCanceladas });
+            }
+
+            return propostaAceita;
+        });
+
+        return response.status(200).json({
+            message: "Troca concluída com sucesso!",
+            proposta: resultadoTransacao
+        });
+    } catch (error) {
+        console.error("Erro ao aceitar proposta:", error);
+        return response.status(500).json({ error: "Erro interno ao concluir a troca." });
+    }
+};
 
 const recusarProposta = async (request, response) => {
     const { id } = request.params;
     const userIdFromToken = request.user.id;
-    const isAdmin = request.user.isAdmin;
 
     try {
         const proposta = await prisma.proposta.findUnique({
             where: { id },
             include: {
-                itemDesejado: { select: { usuarioResponsavelId: true } },
+                itemDesejado: { select: { nome: true, usuarioResponsavelId: true } },
                 quemFez: { select: { id: true } }
             }
         });
@@ -236,21 +261,23 @@ const recusarProposta = async (request, response) => {
         if (!proposta) {
             return response.status(404).json({ error: "Proposta não encontrada." });
         }
-
-        if (proposta.status === 'aceita' || proposta.status === 'recusada') {
-            return response.status(400).json({ error: "Esta proposta já foi aceita ou recusada." });
+        if (proposta.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
+            return response.status(403).json({ error: "Não tem permissão para recusar esta proposta." });
         }
-
-        if (!isAdmin && proposta.itemDesejado.usuarioResponsavelId !== userIdFromToken) {
-            return response.status(403).json({ error: "Você não tem permissão para aceitar/recusar esta proposta." });
+        if (proposta.status !== 'pendente') {
+            return response.status(400).json({ error: `Esta proposta já foi '${proposta.status}'.` });
         }
 
         const propostaRecusada = await prisma.proposta.update({
             where: { id },
+            data: { status: 'recusada', dataResposta: new Date() }
+        });
+
+        await prisma.notificacao.create({
             data: {
-                status: 'recusada',
-                dataResposta: new Date(),
-                responsabilidadeAceita: false
+                destinatarioId: proposta.quemFez.id,
+                mensagem: `A sua proposta pelo item "${proposta.itemDesejado.nome}" foi recusada.`,
+                link: '/minhas-propostas'
             }
         });
 
@@ -258,7 +285,6 @@ const recusarProposta = async (request, response) => {
             message: "Proposta recusada com sucesso!",
             proposta: propostaRecusada
         });
-
     } catch (error) {
         console.error("Erro ao recusar proposta:", error);
         return response.status(500).json({ error: "Erro interno ao recusar proposta." });
@@ -366,7 +392,7 @@ const getPropostaById = async (request, response) => {
 };
 
 const deleteProposta = async (request, response) => {
-    const { id } = request.params; 
+    const { id } = request.params;
     const userIdFromToken = request.user.id;
 
     try {

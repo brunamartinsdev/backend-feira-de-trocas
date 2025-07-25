@@ -24,6 +24,8 @@ model Usuario {
 
   // Um utilizador pode ter RECEBIDO várias propostas.
   propostasRecebidas  Proposta[] @relation("PropostasRecebidas")
+
+  notificacoes Notificacao[] @relation("NotificacoesDoUsuario")
 }
 
 model Item {
@@ -66,4 +68,16 @@ model Proposta {
   // Relação para quem RECEBEU a proposta
   quemRecebeuId           String
   quemRecebeu             Usuario   @relation("PropostasRecebidas", fields: [quemRecebeuId], references: [id])
+}
+
+model Notificacao {
+  id            String   @id @default(uuid())
+  mensagem      String   
+  lida          Boolean  @default(false) 
+  link          String   
+  createdAt     DateTime @default(now())
+
+  //A notificação pertence a um utilizador (o destinatário)
+  destinatarioId String
+  destinatario    Usuario  @relation("NotificacoesDoUsuario", fields: [destinatarioId], references: [id])
 }
