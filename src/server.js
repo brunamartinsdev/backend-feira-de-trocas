@@ -34,12 +34,6 @@ app.use('/categorias', categoriaRoutes);
 app.use('/notificacoes', notificacaoRoutes);
 app.use('/admin', adminRoutes);
 
-app.use(express.static(path.join(__dirname, 'client', 'dist')));
-
-app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-});
-
 
 const PORT = 8084;
 app.listen(PORT, () => {
