@@ -2,6 +2,7 @@
 
 ### **1. Visão Geral**
 
+[Acesse o site](https://frontend-feira-de-trocas.vercel.app/)
 API backend para a "Feira de Trocas Comunitária", um projeto prático do Bootcamp FullStack da Avanti. O sistema visa facilitar a troca de itens entre usuários, promovendo o consumo consciente e os laços comunitários através de um sistema de propostas e notificações.
 
 ### **2. Tecnologias**
