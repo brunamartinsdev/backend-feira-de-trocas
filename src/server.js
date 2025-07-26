@@ -18,10 +18,22 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  'https://frontend-feira-de-trocas.vercel.app', // O seu site em produção
+  'http://localhost:5173'                         // O seu site de desenvolvimento local
+];
+
 app.use(cors({
-    origin: 'https://frontend-feira-de-trocas.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+  origin: function (origin, callback) {
+    // Permite requisições sem 'origin' (como apps mobile ou Postman) ou se a origem estiver na lista
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }));
 
 app.use('/login', loginRoutes);
